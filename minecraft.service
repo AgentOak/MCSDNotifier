@@ -1,0 +1,57 @@
+[Unit]
+Description=Minecraft Server
+Wants=network-online.target
+After=network.target network-online.target
+# If using a database server, e.g. MySQL add mysql.service to Wants and After
+
+[Service]
+User=minecraft
+Group=minecraft
+WorkingDirectory=/opt/minecraft/
+
+# If not using MCSDNotifier plugin set Type=forking and comment out NotifyAccess and WatchdogSec
+Type=notify
+NotifyAccess=all
+
+# If server is not fully started after this time send KillSignal, wait TimeoutStopSec, then SIGKILL
+TimeoutStartSec=300
+# If server does not finish a tick for this time, send WatchdogSignal (default SIGABRT)
+WatchdogSec=120
+# If shutdown takes longer than this time send KillSignal, wait TimeoutStopSec (again), then SIGKILL
+TimeoutStopSec=120
+
+# Always auto restart unless stopped with systemctl. Add small delay to avoid busyloop/spamming logs
+Restart=always
+RestartSec=3
+
+# Remove leftover screen sockets from crashes
+ExecStartPre=/usr/bin/screen -wipe minecraft
+# Unset WATCHDOG_PID which mismatches (since we run as a child of screen) and breaks sd_watchdog_enabled(3)
+ExecStart=/usr/bin/screen -DmS minecraft -- /usr/bin/env -u WATCHDOG_PID /usr/bin/java -Xms1G -Xmx1G -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -XX:-DontCompileHugeMethods -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true -DIReallyKnowWhatIAmDoingISwear -jar server.jar nogui
+
+# Uncomment ExecReload if you want to support reload with the fragile reload command. Paper deliberately breaks the
+# reload command, you have to add -DLetMeReload to ExecStart or change command to "reload confirm^M"
+#ExecReload=/usr/bin/screen -S minecraft -p 0 -X stuff "reload^M"
+
+# Try to shutdown with /stop command first because SIGINT handling is sketchy in many versions/forks.
+# If you use Paper 1.12+ with JLine enabled you can remove the ExecStop= lines and just use signal handling
+ExecStop=/usr/bin/screen -S minecraft -p 0 -X stuff "stop^M"
+# Workaround systemd issue #13284 that they won't address because ExecStop is a "legacy concept"
+ExecStop=/bin/sh -c 'while kill -0 $MAINPID 2>/dev/null; do sleep 1; done'
+
+# SIGINT and SIGTERM should both trigger a Java ShutdownHook and shut down the server gracefully (like /stop) but these
+# hooks are fragile and due to a design flaw in the logging library plugin loggers stop working (which is often mistaken
+# for plugins not getting disabled; https://github.com/PaperMC/Paper/issues/5270#issuecomment-831399586). This logging
+# bug has been worked around in Paper 1.19.2+ (https://github.com/PaperMC/Paper/pull/5592) and remains broken in Spigot.
+# Prefer SIGINT because Paper 1.12+ (with JLine/TerminalConsoleAppender; https://github.com/PaperMC/Paper/pull/728)
+# catches SIGINT without going through a shutdown hook (and therefore doesn't have the logging issue) and screen(1)
+# itself does not kill the application when it receives SIGINT, whereas it will on SIGTERM
+KillSignal=SIGINT
+# Send KillSignal only to the main process. After TimeoutStopSec all processes get SIGKILL. Needs MCSDNotifier plugin to
+# send MAINPID of server back to systemd. May have unexpected results if TimeoutStartSec triggers (since MAINPID is only
+# sent after startup completes). If the server spawns child processes they may not get a chance to shutdown gracefully.
+# May be helpful in some setups but should generally be avoided
+#KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target
