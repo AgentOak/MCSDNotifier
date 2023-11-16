@@ -25,7 +25,7 @@ Restart=always
 RestartSec=3
 
 # Remove leftover screen sockets from crashes
-ExecStartPre=/usr/bin/screen -wipe minecraft
+ExecStartPre=-/usr/bin/screen -wipe minecraft
 # Unset WATCHDOG_PID which mismatches (since we run as a child of screen) and breaks sd_watchdog_enabled(3)
 ExecStart=/usr/bin/screen -DmS minecraft -- /usr/bin/env -u WATCHDOG_PID /usr/bin/java -Xms1G -Xmx1G -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -XX:-DontCompileHugeMethods -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true -DIReallyKnowWhatIAmDoingISwear -jar server.jar nogui
 
