@@ -1,0 +1,19 @@
+name: "${project.name}"
+version: "${project.version}"
+
+description: "${project.description}"
+website: "${project.url}"
+
+main: "${project.groupId}.MCSDNotifierPlugin"
+api-version: "${api-version}"
+load: STARTUP
+
+commands:
+  hang-main-and-accept-data-loss:
+    description: "Permanently hang the server by sleeping indefinitely on the main thread. Used to test the watchdog."
+    usage: /<command>
+    permission: mcsdnotifier.hang
+  hang-stop-and-accept-data-loss:
+    description: "Permanently hang the server by initiating shutdown and sleeping indefinitely. Used to test the watchdog."
+    usage: /<command>
+    permission: mcsdnotifier.hang

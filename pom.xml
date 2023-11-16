@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>me.agentoak.mcsdnotifier</groupId>
+    <artifactId>mcsdnotifier</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>MCSDNotifier</name>
+    <description>Lets your Minecraft Server make sd_notify calls to support some systemd features.</description>
+    <inceptionYear>2023</inceptionYear>
+    <url>https://github.com/AgentOak/MCSDNotifier</url>
+
+    <licenses>
+        <license>
+            <name>The GNU General Public License, Version 3</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:https://github.com/AgentOak/MCSDNotifier.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:AgentOak/MCSDNotifier.git</developerConnection>
+        <url>https://github.com/AgentOak/MCSDNotifier</url>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/AgentOak/MCSDNotifier/issues</url>
+    </issueManagement>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Bukkit/Spigot API 1.14 added ServerLoadEvent which we need to differentiate startup and reload -->
+        <api-version>1.14</api-version>
+        <bukkit.version>1.14-R0.1-SNAPSHOT</bukkit.version>
+
+        <!-- Paper 1.14 bundles JNA 4.5.2, although it stopped bundling JNA in 1.15. Then Minecraft 1.17 started
+             bundling JNA 5.8.0. Therefore, 4.5.2 is the oldest version we need to support. -->
+        <jna.version>4.5.2</jna.version>
+    </properties>
+
+    <repositories>
+        <!-- Spigot Repo, contains Spigot's Bukkit fork (up to 1.15.x) -->
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- Official Bukkit has been unmaintained since 1.7.x, but spigot repo has maintained it and built artifacts
+             up to 1.15.x. Since we don't need anything from spigot-api specifically just use bukkit. -->
+        <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>${bukkit.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- JNA to access native methods like sd_notify -->
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>${jna.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <resources>
+            <!-- Replace variables in resources -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <targetPath>.</targetPath>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+
+                <!-- Enable all warnings in compiler -->
+                <configuration>
+                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                    <compilerArgs>
+                        <arg>-Xlint:all</arg>
+                        <arg>-Xdoclint:all,-missing</arg>
+                    </compilerArgs>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
