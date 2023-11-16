@@ -6,7 +6,7 @@
 
     <groupId>me.agentoak.mcsdnotifier</groupId>
     <artifactId>mcsdnotifier</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
 
     <name>MCSDNotifier</name>
     <description>Lets your Minecraft Server make sd_notify calls to support some systemd features.</description>
