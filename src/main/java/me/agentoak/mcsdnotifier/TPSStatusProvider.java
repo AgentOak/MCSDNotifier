@@ -3,12 +3,19 @@ package me.agentoak.mcsdnotifier;
 import org.bukkit.Server;
 
 /**
- * {@code StatusProvider} implementation that contains server name, version, player count and TPS averages.
+ * {@link StatusProvider} implementation that contains server name, version, player count and TPS averages.
+ * <p>
+ * Requires {@link Server} with a {@code #getTPS()} method, which is available in Paper API.
+ *
+ * @see #isSupported()
  */
 public class TPSStatusProvider implements StatusProvider {
     private final Server server;
 
     public TPSStatusProvider(Server server) {
+        if (!isSupported()) {
+            throw new IllegalStateException("Server is missing Server#getTPS() method");
+        }
         this.server = server;
     }
 

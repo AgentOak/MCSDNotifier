@@ -3,7 +3,7 @@ package me.agentoak.mcsdnotifier;
 import org.bukkit.Server;
 
 /**
- * {@code StatusProvider} implementation that just contains some basic information: server name, version, player count,
+ * {@link StatusProvider} implementation that just contains some basic information: server name, version, player count,
  * plugin count and world count.
  */
 public class BasicStatusProvider implements StatusProvider {
