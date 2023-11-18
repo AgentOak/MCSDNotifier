@@ -48,9 +48,8 @@ ExecStop=/bin/sh -c 'while kill -0 $MAINPID 2>/dev/null; do sleep 1; done'
 # itself does not kill the application when it receives SIGINT, whereas it will on SIGTERM
 KillSignal=SIGINT
 # Send KillSignal only to the main process. After TimeoutStopSec all processes get SIGKILL. Needs MCSDNotifier plugin to
-# send MAINPID of server back to systemd. May have unexpected results if TimeoutStartSec triggers (since MAINPID is only
-# sent after startup completes). If the server spawns child processes they may not get a chance to shutdown gracefully.
-# May be helpful in some setups but should generally be avoided
+# send MAINPID of server back to systemd. If the server spawns child processes they may not get a chance to shutdown
+# gracefully. May be helpful in some setups but should generally be avoided
 #KillMode=mixed
 
 [Install]

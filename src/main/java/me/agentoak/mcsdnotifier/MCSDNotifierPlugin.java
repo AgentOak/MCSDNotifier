@@ -82,6 +82,13 @@ public final class MCSDNotifierPlugin extends JavaPlugin {
 
         sdNotifyEnabled = true;
         getLogger().info("Sending notification every " + notifyInterval + " ms");
+
+        /*
+         * #onLoad is the earliest point in our plugin where we can run code, so get a status out as early as possible.
+         * We don't know if the server is just starting or reloading, but sending the same MAINPID again should not do
+         * any harm. Cannot consult StatusProvider here since plugins are not enabled yet.
+         */
+        sdNotify.init(null);
     }
 
     @Override

@@ -7,7 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.ServerLoadEvent;
 
-class NotifyListener implements Listener {
+final class NotifyListener implements Listener {
     private static final long NSEC_PER_MSEC = 1_000_000L;
 
     private final MCSDNotifierPlugin plugin;
@@ -22,10 +22,15 @@ class NotifyListener implements Listener {
         this.sdNotify = sdNotify;
 
         /*
-         * Watchdog timer starts ticking from SDNotify#started(), but in Plugin#onEnable we don't know if server is just
+         * Watchdog timer starts ticking from SDNotify#ready, but in Plugin#onEnable we don't know if server is just
          * starting (i.e. ServerLoadEvent STARTUP will occur) so we use our #onEnable time as fallback.
          */
-        nextNotifyTime = (System.nanoTime() / NSEC_PER_MSEC) + plugin.getNotifyInterval();
+        nextNotifyTime = monotonicMillis() + plugin.getNotifyInterval();
+    }
+
+    private static long monotonicMillis() {
+        // System.currentTimeMillis() is not monotonic
+        return System.nanoTime() / NSEC_PER_MSEC;
     }
 
     /**
@@ -39,18 +44,13 @@ class NotifyListener implements Listener {
     public void onServerLoad(ServerLoadEvent event) {
         switch (event.getType()) {
             case STARTUP:
-                /*
-                 * This is the only place where we know for sure the server just started. Checking sdNotifyEnabled will
-                 * not work because reload will discard the plugin instance and create a new one. So we can only send
-                 * MAINPID here.
-                 */
-                plugin.getLogger().fine("Server started, pid " + sdNotify.getPid() + " - notifying service manager");
-                nextNotifyTime = (System.nanoTime() / NSEC_PER_MSEC) + plugin.getNotifyInterval();
-                sdNotify.started(plugin.buildStatus().orElse(null));
+                plugin.getLogger().info("Server started, pid " + sdNotify.getPid() + " - notifying service manager");
+                nextNotifyTime = monotonicMillis() + plugin.getNotifyInterval();
+                sdNotify.ready(plugin.buildStatus().orElse(null));
                 break;
             case RELOAD:
-                plugin.getLogger().fine("Server reloaded - notifying service manager");
-                sdNotify.reloaded(plugin.buildStatus().orElse(null));
+                plugin.getLogger().info("Server reloaded - notifying service manager");
+                sdNotify.ready(plugin.buildStatus().orElse(null));
                 break;
             default:
                 plugin.getLogger().warning("Something is happening but we don't know what - not notifying service " +
@@ -69,11 +69,10 @@ class NotifyListener implements Listener {
      * once the server is fully started.
      */
     public void onTick() {
-        // System.currentTimeMillis() is not monotonic
-        long currentTime = System.nanoTime() / NSEC_PER_MSEC;
+        long currentTime = monotonicMillis();
         if (currentTime >= nextNotifyTime) {
-            sdNotify.watchdog(plugin.buildStatus().orElse(null));
             nextNotifyTime = currentTime + plugin.getNotifyInterval();
+            sdNotify.watchdog(plugin.buildStatus().orElse(null));
         }
     }
 
@@ -163,7 +162,7 @@ class NotifyListener implements Listener {
             /*
              * The last notify time could be up to 60s ago. In case this is an undetected stop/reload, we update the
              * watchdog one last time, so we don't get killed too early during shutdown. Makes WatchdogSec timeout
-             * consistent for shutdown on servers lacking #isStopping
+             * consistent for shutdown on servers lacking Server#isStopping
              */
             sdNotify.watchdog(plugin.buildStatus().orElse(null));
         }
@@ -173,11 +172,11 @@ class NotifyListener implements Listener {
         if (!takedown) {
             seenDisableAll = true;
             takedown = true;
-            plugin.getLogger().fine("Detected " + (reload ? "reload" : "stop") + " - notifying service manager");
+            plugin.getLogger().info("Detected " + (reload ? "reload" : "stop") + " - notifying service manager");
             if (reload) {
-                sdNotify.reloading();
+                sdNotify.reloading(null);
             } else {
-                sdNotify.stopping();
+                sdNotify.stopping(null);
             }
         }
     }

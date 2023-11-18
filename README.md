@@ -94,7 +94,6 @@ to build the plugin. If you prefer to use a locally installed Maven, just use `m
 
 ### Backlog
 
-- SDNotify#reloading/stopping should send a status beginning with "Reloading" and "Stopping"
 - Java 9+: Use `ProcessHandle` to get the PID, get rid of `LibC`, use `release` instead of `source/target`
 - Paper API 1.15+: Call `Server#isStopping()` directly, use `ServerTickEndEvent` for `NotifyListener#onTick`
 - Spigot API 1.16+: Try `plugin.yml` `libraries` key for JNA dependency

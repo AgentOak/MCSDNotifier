@@ -89,57 +89,63 @@ public class SDNotify {
     }
 
     /**
-     * Tells the service manager that service startup is finished.
-     * <p>
      * Sends our pid as MAINPID, so the service manager can keep track of the main process in case we were forked off
      * from a container process like {@code screen(1)}, and sets NOTIFYACCESS=main to lock down notify socket access to
      * this process.
      * <p>
-     * Optionally passes a free-form string back to the service manager that describes the service state.
+     * Also passes a free-form string back to the service manager that describes the service state.
      *
-     * @param status a single-line free-form status string, {@code null} to not send (new) status
+     * @param status a single-line free-form status string, {@code null} to send a generic default text
      */
-    public void started(String status) {
-        libsystemd.sd_notify(0, String.format("READY=1\nMAINPID=%d\nNOTIFYACCESS=main%s", pid,
-            status == null ? "" : ("\nSTATUS=" + status)));
+    public void init(String status) {
+        libsystemd.sd_notify(0, String.format("MAINPID=%d\nNOTIFYACCESS=main\nSTATUS=%s", pid,
+            status == null ? "Loading" : status));
+    }
+
+    /**
+     * Tells the service manager that the service is ready, i.e. finished starting or reloading.
+     * <p>
+     * Also passes a free-form string back to the service manager that describes the service state.
+     *
+     * @param status a single-line free-form status string, {@code null} to send a generic default text
+     */
+    public void ready(String status) {
+        libsystemd.sd_notify(0, String.format("READY=1\nSTATUS=%s", status == null ? "Running" : status));
     }
 
     /**
      * Tells the service manager to update the watchdog timestamp. This is the keep-alive ping that services need to
      * issue in regular intervals if {@code WatchdogSec=} is enabled for it.
      * <p>
-     * Optionally passes a free-form string back to the service manager that describes the service state.
+     * Also passes a free-form string back to the service manager that describes the service state.
      *
-     * @param status a single-line free-form status string, {@code null} to not send (new) status
+     * @param status a single-line free-form status string, {@code null} to send a generic default text
      * @see #getWatchdogUsec()
      */
     public void watchdog(String status) {
-        libsystemd.sd_notify(0, String.format("WATCHDOG=1%s", status == null ? "" : ("\nSTATUS=" + status)));
+        libsystemd.sd_notify(0, String.format("WATCHDOG=1\nSTATUS=%s", status == null ? "Running" : status));
     }
 
     /**
-     * Tell the service manager that the service is beginning to reload. Should call {@link #reloaded(String)} when
+     * Tell the service manager that the service is beginning to reload. Should call {@link #ready(String)} when
      * done.
-     */
-    public void reloading() {
-        libsystemd.sd_notify(0, "RELOADING=1");
-    }
-
-    /**
-     * Tells the service manager that service reload is finished.
      * <p>
-     * Optionally passes a free-form string back to the service manager that describes the service state.
+     * Also passes a free-form string back to the service manager that describes the service state.
      *
-     * @param status a single-line free-form status string, {@code null} to not send (new) status
+     * @param status a single-line free-form status string, {@code null} to send a generic default text
      */
-    public void reloaded(String status) {
-        libsystemd.sd_notify(0, String.format("READY=1%s", status == null ? "" : ("\nSTATUS=" + status)));
+    public void reloading(String status) {
+        libsystemd.sd_notify(0, String.format("RELOADING=1\nSTATUS=%s", status == null ? "Reloading" : status));
     }
 
     /**
      * Tells the service manager that the service is beginning its shutdown.
+     * <p>
+     * Also passes a free-form string back to the service manager that describes the service state.
+     *
+     * @param status a single-line free-form status string, {@code null} to send a generic default text
      */
-    public void stopping() {
-        libsystemd.sd_notify(0, "STOPPING=1");
+    public void stopping(String status) {
+        libsystemd.sd_notify(0, String.format("STOPPING=1\nSTATUS=%s", status == null ? "Stopping" : status));
     }
 }
