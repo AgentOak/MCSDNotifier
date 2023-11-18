@@ -29,7 +29,9 @@ calls to support some systemd features:
 - `libsystemd` (if you are running systemd you most likely have this already)
 - Server that implements Bukkit/Spigot API 1.14+
     - Paper is recommended due to [better handling of SIGINT (Ctrl+C)](https://github.com/PaperMC/Paper/pull/728) as
-      long as you don't disable the JLine console
+      long as you don't disable the JLine console and availability of
+      [Server#getTPS()](https://jd.papermc.io/paper/1.14/org/bukkit/Server.html#getTPS--) for a more useful status
+      string
     - Paper 1.15.2+ is recommended due to availability
       of [Server#isStopping()](https://jd.papermc.io/paper/1.15/org/bukkit/Server.html#isStopping--)
     - Paper 1.19.2+ is recommended due to [not breaking logging](https://github.com/PaperMC/Paper/pull/5592) when server
@@ -97,7 +99,8 @@ to build the plugin. If you prefer to use a locally installed Maven, just use `m
 ### Backlog
 
 - Java 9+: Use `ProcessHandle` to get the PID, get rid of `LibC`, use `release` instead of `source/target`
-- Paper API 1.15+: Call `Server#isStopping()` directly, use `ServerTickEndEvent` for `NotifyListener#onTick`
+- Paper API 1.15+: Call `Server#isStopping()` and `Server#getTPS()` directly, use `ServerTickEndEvent` for
+  `NotifyListener#onTick`
 - Spigot API 1.16+: Try `plugin.yml` `libraries` key for JNA dependency
 
 ### License

@@ -93,8 +93,9 @@ public final class MCSDNotifierPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        getServer().getServicesManager().register(StatusProvider.class, new BasicStatusProvider(getServer()), this,
-            ServicePriority.Lowest);
+        getServer().getServicesManager().register(StatusProvider.class,
+            TPSStatusProvider.isSupported() ? new TPSStatusProvider(getServer()) : new BasicStatusProvider(getServer()),
+            this, ServicePriority.Lowest);
 
         if (sdNotifyEnabled) {
             notifyListener = new NotifyListener(this, sdNotify);
