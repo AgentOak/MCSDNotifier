@@ -104,23 +104,19 @@ public final class MCSDNotifierPlugin extends JavaPlugin {
             getServer().getScheduler().runTaskTimer(this, notifyListener::onTick, 1L, 1L);
         }
 
-        getCommand("hang-main-and-accept-data-loss").setExecutor(new CommandExecutor() {
-            @Override
-            public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-                if (!(sender instanceof ConsoleCommandSender)) {
-                    sender.sendMessage("This command can only be run from console");
-                    return true;
-                }
-
-                getServer().getScheduler().runTask(MCSDNotifierPlugin.this, () -> {
-                    getLogger().info("Deliberately hanging on main thread");
-                    hang();
-                });
-                return true;
-            }
+        installHangCommand("hang-main-and-accept-data-loss", () -> {
+            getLogger().info("Deliberately hanging on main thread");
+            hang();
         });
 
-        getCommand("hang-stop-and-accept-data-loss").setExecutor(new CommandExecutor() {
+        installHangCommand("hang-stop-and-accept-data-loss", () -> {
+            hangStop = true;
+            getServer().shutdown();
+        });
+    }
+
+    private void installHangCommand(String command, Runnable task) {
+        getCommand(command).setExecutor(new CommandExecutor() {
             @Override
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
                 if (!(sender instanceof ConsoleCommandSender)) {
@@ -128,10 +124,7 @@ public final class MCSDNotifierPlugin extends JavaPlugin {
                     return true;
                 }
 
-                getServer().getScheduler().runTask(MCSDNotifierPlugin.this, () -> {
-                    hangStop = true;
-                    getServer().shutdown();
-                });
+                getServer().getScheduler().runTask(MCSDNotifierPlugin.this, task);
                 return true;
             }
         });
@@ -166,6 +159,8 @@ public final class MCSDNotifierPlugin extends JavaPlugin {
             }
         }
     }
+
+    // API Methods /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Return whether the plugin loaded successfully and is sending notifications.
