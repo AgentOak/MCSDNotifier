@@ -20,12 +20,12 @@ public final class MCSDNotifierPlugin extends JavaPlugin {
      * In ms, default interval for watchdog/status updates to {@link SDNotify#watchdog(String)}. Used when the service
      * manager does not tell us the watchdog interval (usually when it does not have watchdog enabled).
      */
-    private static final long DEFAULT_NOTIFY_INTERVAL = 60L * MSEC_PER_SEC;
+    private static final long DEFAULT_NOTIFY_INTERVAL = 10L * MSEC_PER_SEC;
     /**
      * In ms, upper cap for notify interval. If service manager sets watchdog interval to a higher value, we will
      * still report at this interval for up-to-date status messages.
      */
-    private static final long MAX_NOTIFY_INTERVAL = 60L * MSEC_PER_SEC;
+    private static final long MAX_NOTIFY_INTERVAL = 10L * MSEC_PER_SEC;
     /**
      * In ms, how long a tick is. Used as lower cap for notify interval. Minecraft is hardcoded to 20 ticks/sec.
      */

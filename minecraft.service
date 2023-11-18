@@ -9,7 +9,7 @@ User=minecraft
 Group=minecraft
 WorkingDirectory=/opt/minecraft/
 
-# If not using MCSDNotifier plugin set Type=forking and comment out NotifyAccess and WatchdogSec
+# If not using MCSDNotifier plugin set Type=exec and comment out NotifyAccess, TimeoutStartSec and WatchdogSec
 Type=notify
 NotifyAccess=all
 

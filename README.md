@@ -8,7 +8,7 @@ calls to support some systemd features:
   than [TimeoutStartSec=](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html#TimeoutStartSec=)
 - Killing the server if it hangs (no ticks finished) for longer
   than [WatchdogSec=](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html#WatchdogSec=). This
-  is more reliably than the watchdog integrated in Spigot, because it is implemented outside the server process
+  is more reliable than the watchdog integrated in Spigot, because it is implemented outside the server process
 - Killing the server if stop takes longer
   than [TimeoutStopSec=](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html#TimeoutStopSec=)
 - Sending a status string back to the service manager that is displayed in `systemctl status`:
@@ -62,9 +62,11 @@ settings:
   restart-script: ./should-not-exist-lksdbgqp390t2q33t3w4uj
 ```
 
-Make sure that `WatchdogSec=` is higher than `spigot.yml` `timeout-time`. Leave `restart-on-crash` enabled, but set
-`restart-script` to a filename that does not exist. This will make the server stop if Spigot watchdog detects a hang.
-The systemd service will then restart the server automatically; there is no need to fiddle around with shell scripts.
+Since MCSDNotifier only notifies the watchdog every 10 seconds, the service manager watchdog can trigger early, so make
+sure that `WatchdogSec=` is at least 15 seconds higher than `spigot.yml` `timeout-time`. Leave `restart-on-crash`
+enabled, but set `restart-script` to a filename that does not exist. This will make the server stop if Spigot watchdog
+detects a hang. The systemd service will then restart the server automatically; there is no need to fiddle around with
+shell scripts.
 
 #### If not using Paper 1.15.2+
 

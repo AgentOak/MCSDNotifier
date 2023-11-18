@@ -160,9 +160,9 @@ final class NotifyListener implements Listener {
 
         if (seenDisableAll) {
             /*
-             * The last notify time could be up to 60s ago. In case this is an undetected stop/reload, we update the
-             * watchdog one last time, so we don't get killed too early during shutdown. Makes WatchdogSec timeout
-             * consistent for shutdown on servers lacking Server#isStopping
+             * The last notify time could be up to MCSDNotifierPlugin#MAX_NOTIFY_INTERVAL ago. In case this is an
+             * undetected stop/reload, we update the watchdog one last time, so we don't get killed too early during
+             * shutdown. Makes WatchdogSec timeout consistent for shutdown on servers lacking Server#isStopping
              */
             sdNotify.watchdog(plugin.buildStatus().orElse(null));
         }
