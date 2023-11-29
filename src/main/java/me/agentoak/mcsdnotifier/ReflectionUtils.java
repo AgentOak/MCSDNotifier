@@ -35,11 +35,13 @@ final class ReflectionUtils {
      *
      * @throws RuntimeException if the method does not exist or is not accessible
      */
-    public static Object methodGetter(Object object, String methodName) {
+    @SuppressWarnings("unchecked")
+    public static <T> T methodGetter(Object object, String methodName) {
         try {
-            return object.getClass().getMethod(methodName).invoke(object);
+            return (T) object.getClass().getMethod(methodName).invoke(object);
         } catch (NoSuchMethodException | IllegalAccessException e) {
-            throw new RuntimeException("Cannot call method '" + methodName + "()'. This is a bug", e);
+            throw new RuntimeException("Cannot call method " + object.getClass().getName() + "#" + methodName + "(). " +
+                                           "This is a bug", e);
         } catch (InvocationTargetException e) {
             if (e.getCause() instanceof RuntimeException) {
                 throw (RuntimeException) e.getCause();

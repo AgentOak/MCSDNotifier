@@ -26,7 +26,7 @@ public class TPSStatusProvider implements StatusProvider {
     }
 
     protected String buildTPSString() {
-        double[] tps = (double[]) ReflectionUtils.methodGetter(server, "getTPS");
+        double[] tps = ReflectionUtils.methodGetter(server, "getTPS");
         StringBuilder sb = new StringBuilder(tps.length * 6);
         for (double t : tps) {
             sb.append(String.format(" %.2f", t));

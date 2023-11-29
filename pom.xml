@@ -37,9 +37,8 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- Bukkit/Spigot API 1.14 added ServerLoadEvent which we need to differentiate startup and reload -->
-        <api-version>1.14</api-version>
-        <bukkit.version>1.14-R0.1-SNAPSHOT</bukkit.version>
+        <api-version>1.13</api-version>
+        <bukkit.version>1.8-R0.1-SNAPSHOT</bukkit.version>
 
         <!-- Paper 1.14 bundles JNA 4.5.2, although it stopped bundling JNA in 1.15. Then Minecraft 1.17 started
              bundling JNA 5.8.0. Therefore, 4.5.2 is the oldest version we need to support. -->

@@ -10,10 +10,10 @@ package me.agentoak.mcsdnotifier;
 @FunctionalInterface
 public interface StatusProvider {
     /**
-     * Generate a single-line free-form string to pass to a service manager that describes the current service state.
+     * Generate a single-line free-form string to pass to the service manager that describes the current service state.
      * <p>
-     * Implementations may not assume the server to be in any specific state. This method should not fail even if called
-     * during server startup or shutdown!
+     * Will be called during normal server operation, i.e. after all plugins have been enabled once ticks
+     * start happening and before any plugins are disabled when shutting down or reloading.
      *
      * @return May not be {@code null}.
      */

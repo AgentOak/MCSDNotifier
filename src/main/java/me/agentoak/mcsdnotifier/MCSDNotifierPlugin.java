@@ -2,9 +2,6 @@ package me.agentoak.mcsdnotifier;
 
 import me.agentoak.mcsdnotifier.system.SDNotify;
 import me.agentoak.mcsdnotifier.system.SDNotifyException;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.ServicePriority;
@@ -81,13 +78,14 @@ public final class MCSDNotifierPlugin extends JavaPlugin {
         }
 
         sdNotifyEnabled = true;
-        getLogger().info("Sending notification every " + notifyInterval + " ms");
 
         /*
          * #onLoad is the earliest point in our plugin where we can run code, so get a status out as early as possible.
          * We don't know if the server is just starting or reloading, but sending the same MAINPID again should not do
          * any harm. Cannot consult StatusProvider here since plugins are not enabled yet.
          */
+        getLogger().info("We are pid " + sdNotify.getPid() + " - notifying service manager. " +
+                             "Sending watchdog updates every " + notifyInterval + " ms");
         sdNotify.init(null);
     }
 
@@ -115,18 +113,15 @@ public final class MCSDNotifierPlugin extends JavaPlugin {
         });
     }
 
-    private void installHangCommand(String command, Runnable task) {
-        getCommand(command).setExecutor(new CommandExecutor() {
-            @Override
-            public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-                if (!(sender instanceof ConsoleCommandSender)) {
-                    sender.sendMessage("This command can only be run from console");
-                    return true;
-                }
-
-                getServer().getScheduler().runTask(MCSDNotifierPlugin.this, task);
+    private void installHangCommand(String commandName, Runnable task) {
+        getCommand(commandName).setExecutor((commandSender, command, s, strings) -> {
+            if (!(commandSender instanceof ConsoleCommandSender)) {
+                commandSender.sendMessage("This command can only be run from console");
                 return true;
             }
+
+            getServer().getScheduler().runTask(this, task);
+            return true;
         });
     }
 
