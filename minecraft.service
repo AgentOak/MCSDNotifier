@@ -1,8 +1,11 @@
 [Unit]
 Description=Minecraft Server
 Wants=network-online.target
-After=network.target network-online.target
-# If using a database server, e.g. MySQL add mysql.service to Wants and After
+After=network-online.target local-fs.target
+# Also list databases as dependencies, e.g. for MySQL add Requires=mysql.service and mysql.service to After
+
+StartLimitIntervalSec=60
+StartLimitBurst=3
 
 [Service]
 User=minecraft
@@ -20,13 +23,13 @@ WatchdogSec=120
 # If shutdown takes longer than this time send KillSignal, wait TimeoutStopSec (again), then SIGKILL
 TimeoutStopSec=120
 
-# Always auto restart unless stopped with systemctl. Add small delay to avoid busyloop/spamming logs
+# Always auto restart unless stopped with systemctl
 Restart=always
-RestartSec=3
 
 # Remove leftover screen sockets from crashes
 ExecStartPre=-/usr/bin/screen -wipe minecraft
 # Unset WATCHDOG_PID which mismatches (since we run as a child of screen) and breaks sd_watchdog_enabled(3)
+# For Xmx>12G change: -XX:G1NewSizePercent=40 -XX:G1MaxNewSizePercent=50 -XX:G1HeapRegionSize=16M -XX:G1ReservePercent=15 -XX:InitiatingHeapOccupancyPercent=20
 ExecStart=/usr/bin/screen -DmS minecraft -- /usr/bin/env -u WATCHDOG_PID /usr/bin/java -Xms1G -Xmx1G -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -XX:-DontCompileHugeMethods -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true -DIReallyKnowWhatIAmDoingISwear -jar server.jar nogui
 
 # Uncomment ExecReload if you want to support reload with the fragile reload command. Paper deliberately breaks the
