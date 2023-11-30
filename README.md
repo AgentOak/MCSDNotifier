@@ -16,7 +16,7 @@ calls to support some systemd features:
         $ systemctl status minecraft
         ● minecraft.service - Minecraft Server
         [...]
-        Status: "Running Paper git-Paper-280 (MC: 1.20.2) with 0/20 players, 1 plugins, 3 worlds"
+        Status: "Running Paper git-Paper-280 (MC: 1.20.2) with 0/20 players, TPS avg: 20.00 20.00 20.00"
         Memory: 1.3G
         CPU: 1min 1.049s
 
@@ -26,21 +26,27 @@ calls to support some systemd features:
 ### Requirements
 
 - Java 8+
+- Bukkit/Spigot API 1.8+
 - `libsystemd` (if you are running systemd you most likely have this already)
-- Server that implements Bukkit/Spigot API 1.14+
-    - Paper is recommended due to [better handling of SIGINT (Ctrl+C)](https://github.com/PaperMC/Paper/pull/728) as
-      long as you don't disable the JLine console and availability of
-      [Server#getTPS()](https://jd.papermc.io/paper/1.14/org/bukkit/Server.html#getTPS--) for a more useful status
-      string
-    - Paper 1.15.2+ is recommended due to availability
-      of [Server#isStopping()](https://jd.papermc.io/paper/1.15/org/bukkit/Server.html#isStopping--)
-    - Paper 1.19.2+ is recommended due to [not breaking logging](https://github.com/PaperMC/Paper/pull/5592) when server
-      is shut down by signals
-- (Only for Minecraft <=1.16) JNA
+- (Only for Servers 1.16 and older) JNA
     - **Only if the plugin tells you that JNA is missing when it starts**, download a copy of the
       latest [JNA](https://mvnrepository.com/artifact/net.java.dev.jna/jna) 5.x jar and put it in the classpath of the
       Server. For [technical reasons](https://github.com/java-native-access/jna/issues/679) this dependency cannot be
       included in the plugin
+
+Paper (or another server based on it) is highly recommended:
+
+- [Better handling of SIGINT (Ctrl+C)](https://github.com/PaperMC/Paper/pull/728) as long as you don't disable the JLine
+  console
+- Availability of [Server#getTPS()](https://jd.papermc.io/paper/1.14/org/bukkit/Server.html#getTPS--) for a more useful
+  status string
+- Paper 1.15.2+: Availability of
+  [Server#isStopping()](https://jd.papermc.io/paper/1.15/org/bukkit/Server.html#isStopping--)
+- Paper 1.19.2+: [Fixed plugin loggers breaking](https://github.com/PaperMC/Paper/pull/5592) when server is shut down by
+  signals
+
+Future versions of this plugin will require Paper API 1.16+, but server updates should be unlikely to break older plugin
+versions.
 
 ### Usage
 
@@ -99,7 +105,8 @@ to build the plugin. If you prefer to use a locally installed Maven, just use `m
 ### Backlog
 
 - Java 9+: Use `ProcessHandle` to get the PID, get rid of `LibC`, use `release` instead of `source/target`
-- Paper API 1.15+: Call `Server#isStopping()` and `Server#getTPS()` directly, use `ServerTickEndEvent` for
+- Bukkit/Spigot API 1.15+: Upgrade JNA dependency to 5.8.0
+- Paper API 1.15+: Call `Server#isStopping()` and `Server#getTPS()` directly, use `ServerTickBeginEvent` for
   `NotifyListener#onTick`
 - Spigot API 1.16+: Try `plugin.yml` `libraries` key for JNA dependency
 
